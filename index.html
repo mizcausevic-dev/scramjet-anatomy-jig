@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Scramjet Flowpath Anatomy Jig</title>
+<meta name="description" content="A 34-second schematic side elevation of a Mach 6 air-breathing scramjet: shock-on-lip, a contained isolator shock train, strut injection, supersonic autoignition, and a single-expansion ramp nozzle.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect fill='%2307080c' width='32' height='32'/%3E%3Cpath d='M4 20 L16 8 L28 22' fill='none' stroke='%237209B7' stroke-width='2'/%3E%3C/svg%3E">
+<style>
+@font-face{font-family:"Space Grotesk";src:url("fonts/sg400.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Space Grotesk";src:url("fonts/sg500.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Space Grotesk";src:url("fonts/sg600.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/jm400.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"JetBrains Mono";src:url("fonts/jm500.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
+:root{--void:#07080c;--violet:#7209B7;--yellow:#FFD000;--plasma:#F72585;--bone:#E6E2D8;--mute:#9aa0a8;--line:rgba(230,226,216,.12)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{display:flex;flex-direction:column;height:100dvh;overflow:hidden;background:var(--void);color:var(--bone);font-family:"Space Grotesk","Avenir Next","Segoe UI",sans-serif}
+::selection{background:var(--violet);color:#fff}
+header,footer{flex:0 0 auto;padding:10px 18px;background:#08090d}
+header{display:flex;justify-content:space-between;gap:18px;align-items:flex-end;border-bottom:1px solid var(--line)}
+main{flex:1 1 auto;min-height:0;position:relative;background:#05060a}
+canvas{width:100%;height:100%;display:block}
+.kicker{margin:0;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.16em;color:var(--yellow)}
+h1{margin:2px 0 0;font-size:18px;font-weight:600;letter-spacing:.04em}
+.sub{margin:2px 0 0;color:var(--mute);font-size:12px}
+.sub a{color:var(--bone)}
+.timecode{text-align:right;font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.timecode strong{display:block;font-size:18px;font-weight:500;color:var(--bone)}
+.timecode span{color:var(--mute);font-size:11px}
+footer{border-top:1px solid var(--line);display:grid;gap:8px}
+.chapter{display:flex;justify-content:space-between;gap:16px;align-items:baseline}
+.chapter h2{margin:0;font-size:15px;font-weight:600}
+.chapter p{margin:2px 0 0;color:var(--mute);font-size:13px;line-height:1.35}
+#chips{display:flex;flex-wrap:wrap;gap:6px}
+#chips button,.transport button{background:transparent;color:var(--bone);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font:500 12px/1 "Space Grotesk",sans-serif;cursor:pointer}
+#chips button[aria-current="true"]{border-color:var(--violet);color:#fff;background:rgba(114,9,183,.28)}
+.transport{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.transport .left,.legend{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.legend{color:var(--mute);font-family:"JetBrains Mono",ui-monospace,monospace;font-size:10px;letter-spacing:.04em}
+.sw{width:9px;height:9px;border-radius:2px;display:inline-block}
+.scrub{position:relative;height:22px;display:flex;align-items:center}
+.ticks{position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none}
+.ticks i{position:absolute;top:2px;width:1px;height:6px;background:rgba(230,226,216,.35)}
+input[type=range]{width:100%;appearance:none;-webkit-appearance:none;height:4px;border-radius:99px;background:#1a1e26;margin:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--yellow);border:2px solid var(--void);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--yellow);border:2px solid var(--void);cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.hint{color:var(--mute);font-size:11px}
+#reduce{display:none;color:var(--yellow);font-size:12px}
+@media (max-width:720px){
+  header,footer{padding:8px 12px}
+  h1{font-size:15px}
+  .sub{display:none}
+  .chapter{flex-direction:column;gap:2px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <p class="kicker">ANATOMY JIG</p>
+    <h1>SCRAMJET FLOWPATH</h1>
+    <p class="sub">Air-breathing side elevation. 34.0 s. 1,020 frames. 30 fps. Schematic, not a test. <a href="https://github.com/mizcausevic-dev/scramjet-anatomy-jig">Source</a></p>
+  </div>
+  <div class="timecode">
+    <strong id="tc">00:00:00</strong>
+    <span id="meta">F 0000 / 1019 · 0.0 s</span>
+  </div>
+</header>
+<main><canvas id="stage" aria-label="Schematic side elevation of a Mach 6 scramjet. The film opens the thermal shell, shows a contained inlet shock train, strut fuel injection, supersonic autoignition, and nozzle forces."></canvas></main>
+<footer>
+  <div class="chapter">
+    <div>
+      <h2 id="chTitle">Thermal protection shell</h2>
+      <p id="chBody">Ceramic panels move off on their surface normals and open the isolator.</p>
+    </div>
+    <div class="hint" id="reduce">Reduced motion is on. Paused on the nozzle plate. Press play to run the 34 seconds.</div>
+  </div>
+  <div id="chips" role="tablist" aria-label="Chapters"></div>
+  <div class="scrub">
+    <div class="ticks" id="ticks" aria-hidden="true"></div>
+    <input id="scrub" type="range" min="0" max="1019" value="0" step="1" aria-label="Frame" aria-valuemin="0" aria-valuemax="1019" aria-valuenow="0">
+  </div>
+  <div class="transport">
+    <div class="left">
+      <button type="button" id="play">Pause</button>
+      <button type="button" id="restart">Restart</button>
+      <button type="button" id="loop" aria-pressed="true">Loop on</button>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span><i class="sw" style="background:#7209B7"></i> shocks</span>
+      <span><i class="sw" style="background:#FFD000"></i> core / fuel</span>
+      <span><i class="sw" style="background:#F72585"></i> ignition</span>
+      <span><i class="sw" style="background:#2E333D;outline:1px solid #9aa0a8"></i> titanium</span>
+      <span><i class="sw" style="background:#121316;outline:1px solid #9aa0a8"></i> ceramic</span>
+      <span><i class="sw" style="background:#E6E2D8"></i> force</span>
+    </div>
+  </div>
+</footer>
+<script>
+(function () {
+  "use strict";
+  const FPS = 30;
+  const LAST = 1019;
+  const C = { violet:"#7209B7", yellow:"#FFD000", plasma:"#F72585", bone:"#E6E2D8", mute:"#9aa0a8", ti:"#2E333D" };
+  const BELLY = [[150,418],[420,508],[640,522],[1000,528],[1220,590],[1560,748]];
+  const UPPER = [[150,418],[300,328],[560,246],[940,196],[1280,188],[1560,236]];
+  const COWL_IN = [[508,682],[700,640],[1000,646],[1188,658]];
+  const COWL_OUT = [[508,682],[560,728],[780,742],[1040,748],[1210,756]];
+  const STRUTS = [1024,1088,1152];
+  const CHAPTERS = [
+    { f:0, t:"0:00 Shell", h:"Thermal protection shell", d:"Ceramic panels move off on their surface normals and open the isolator." },
+    { f:151, t:"0:05 Shocks", h:"Oblique shock train", d:"Shock-on-lip. Reflections stay in the isolator, so the inlet remains started." },
+    { f:301, t:"0:10 Injection", h:"Strut injection", d:"Gaseous fuel enters the supersonic crossflow and trails a counter-rotating vortex pair." },
+    { f:511, t:"0:17 Ignition", h:"Supersonic autoignition", d:"The mixture lights from compression heating. The core stays supersonic." },
+    { f:751, t:"0:25 Nozzle", h:"Single-expansion ramp", d:"Ramp pressure, wall taps, and the forward force on the vehicle." }
+  ];
+  const canvas = document.getElementById("stage");
+  const ctx = canvas.getContext("2d", { alpha:false });
+  const el = {
+    tc: document.getElementById("tc"),
+    meta: document.getElementById("meta"),
+    title: document.getElementById("chTitle"),
+    body: document.getElementById("chBody"),
+    scrub: document.getElementById("scrub"),
+    play: document.getElementById("play"),
+    chips: document.getElementById("chips"),
+    ticks: document.getElementById("ticks"),
+    loop: document.getElementById("loop"),
+    reduce: document.getElementById("reduce")
+  };
+  let cssW = 1, cssH = 1, frame = 0, playing = true, loopOn = true, acc = 0, lastT = 0, dirty = true;
+  const q = new URLSearchParams(location.search);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (q.has("f")) frame = clamp(parseInt(q.get("f"), 10) || 0, 0, LAST);
+  if (q.get("pause") === "1") playing = false;
+  if (reduce && q.get("play") !== "1" && !q.has("f")) {
+    playing = false;
+    frame = 960;
+    el.reduce.style.display = "block";
+  }
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function smooth(t){ t = clamp(t,0,1); return t*t*(3-2*t); }
+  function ease(t){ t = clamp(t,0,1); return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+  function hash(i){ const x = Math.sin(i*127.1+311.7)*43758.5453; return x-Math.floor(x); }
+  function env(f,a,b,c,d){
+    const up = smooth((f-a)/Math.max(1,b-a));
+    const down = d<=c ? 1 : smooth((d-f)/Math.max(1,d-c));
+    return Math.min(clamp(up,0,1), clamp(down,0,1));
+  }
+  function atX(poly,x){
+    if (x<=poly[0][0]) return [poly[0][0], poly[0][1]];
+    for (let i=0;i<poly.length-1;i++){
+      const a = poly[i], b = poly[i+1];
+      if (x>=a[0] && x<=b[0]){
+        const t = (x-a[0])/(b[0]-a[0]||1);
+        return [x, a[1]+(b[1]-a[1])*t];
+      }
+    }
+    const last = poly[poly.length-1];
+    return [last[0], last[1]];
+  }
+  function yOn(poly,x){ return atX(poly,x)[1]; }
+  function slicePoly(poly,x0,x1){
+    const pts = [atX(poly,x0)];
+    for (const p of poly) if (p[0]>x0+0.01 && p[0]<x1-0.01) pts.push(p);
+    const end = atX(poly,x1);
+    const prev = pts[pts.length-1];
+    if (Math.hypot(end[0]-prev[0], end[1]-prev[1])>0.5) pts.push(end);
+    return pts;
+  }
+  function shearY(x){
+    const te = COWL_IN[COWL_IN.length-1];
+    const t = clamp((x-te[0])/(1560-te[0]),0,1);
+    return te[1]+(830-te[1])*t;
+  }
+  function tangentAt(poly,x){
+    const a = atX(poly,x-10), b = atX(poly,x+10);
+    let tx = b[0]-a[0], ty = b[1]-a[1];
+    const L = Math.hypot(tx,ty)||1;
+    return [tx/L, ty/L];
+  }
+  function normalFrom(tx,ty,up){
+    const L = Math.hypot(tx,ty)||1;
+    tx/=L; ty/=L;
+    let nx = -ty, ny = tx;
+    if (up && ny>0){ nx=-nx; ny=-ny; }
+    if (!up && ny<0){ nx=-nx; ny=-ny; }
+    return [nx,ny];
+  }
+  function offsetPoly(poly,dist,up){
+    return poly.map((p,i)=>{
+      const prev = poly[Math.max(0,i-1)];
+      const next = poly[Math.min(poly.length-1,i+1)];
+      const n = normalFrom(next[0]-prev[0], next[1]-prev[1], up);
+      return [p[0]+n[0]*dist, p[1]+n[1]*dist];
+    });
+  }
+  function inside(poly,x,y){
+    let c = false;
+    for (let i=0,j=poly.length-1;i<poly.length;j=i++){
+      const yi=poly[i][1], yj=poly[j][1], xi=poly[i][0], xj=poly[j][0];
+      if ((yi>y)!==(yj>y) && x<((xj-xi)*(y-yi))/((yj-yi)||1e-6)+xi) c=!c;
+    }
+    return c;
+  }
+  const BODY = UPPER.concat(BELLY.slice().reverse());
+  const COWL_SOLID = COWL_IN.concat(COWL_OUT.slice().reverse());
+  function ductPoly(){
+    const lipX = COWL_IN[0][0];
+    const te = COWL_IN[COWL_IN.length-1];
+    const top = slicePoly(BELLY, lipX, 1560);
+    const cowl = slicePoly(COWL_IN, lipX, te[0]);
+    return top.concat([[1560, shearY(1560)]], cowl.slice().reverse());
+  }
+  const DUCT = ductPoly();
+  function traceTrain(){
+    const lip = COWL_IN[0];
+    const target = atX(BELLY, 630);
+    let dx = target[0]-lip[0], dy = target[1]-lip[1];
+    let L = Math.hypot(dx,dy)||1;
+    dx/=L; dy/=L;
+    const pts = [[lip[0], lip[1]]];
+    let x = lip[0], y = lip[1], bounces = 0;
+    const xLimit = 1008;
+    for (let n=0;n<500 && bounces<5 && x<xLimit;n++){
+      x += dx*5; y += dy*5;
+      if (x>=xLimit) break;
+      const yb = yOn(BELLY, x);
+      const yc = yOn(COWL_IN, Math.min(x, COWL_IN[COWL_IN.length-1][0]));
+      if (y<=yb && dy<0){ y=yb; dy=Math.abs(dy); bounces++; pts.push([x,y]); }
+      else if (y>=yc && dy>0 && x>lip[0]+12){ y=yc; dy=-Math.abs(dy); bounces++; pts.push([x,y]); }
+    }
+    pts.push([Math.min(x,xLimit), y]);
+    return pts;
+  }
+  const TRAIN = traceTrain();
+  function camera(f,w,h){
+    const keys = [
+      {f:0,x:860,y:540,z:1},{f:150,x:820,y:560,z:1.08},{f:230,x:640,y:590,z:1.7},
+      {f:300,x:660,y:590,z:1.74},{f:370,x:1090,y:610,z:2.25},{f:510,x:1105,y:610,z:2.4},
+      {f:640,x:1240,y:650,z:1.95},{f:750,x:1360,y:690,z:1.62},{f:1020,x:880,y:560,z:0.94}
+    ];
+    let i=0;
+    while (i<keys.length-2 && f>keys[i+1].f) i++;
+    const a=keys[i], b=keys[i+1];
+    const t = ease((f-a.f)/(b.f-a.f||1));
+    const fit = Math.min(w/1860, h/1080);
+    return { x:lerp(a.x,b.x,t), y:lerp(a.y,b.y,t), z:lerp(a.z,b.z,t)*Math.max(0.2,fit) };
+  }
+  function project(cam,p){ return [(p[0]-cam.x)*cam.z+cssW/2, (p[1]-cam.y)*cam.z+cssH*0.48]; }
+  function projectAll(cam,poly){ return poly.map((p)=>project(cam,p)); }
+  function scene(f){
+    return {
+      f:f,
+      schlieren: env(f,151,188,300,350),
+      fuel: env(f,301,345,1020,1020),
+      flame: env(f,511,560,1020,1020),
+      field: env(f,751,840,1020,1020),
+      burn: smooth(clamp((f-511)/180,0,1)),
+      open: function(i){ return smooth(clamp((f-(4+i*7))/70,0,1)); }
+    };
+  }
+  function phaseOf(f){ let p=0; for (let i=0;i<CHAPTERS.length;i++) if (f>=CHAPTERS[i].f) p=i; return p; }
+  function phaseAlpha(f,p){
+    const a = CHAPTERS[p].f;
+    const b = p<CHAPTERS.length-1 ? CHAPTERS[p+1].f-1 : LAST;
+    const fade = 8;
+    if (f<a) return clamp(1-(a-f)/fade,0,1);
+    if (f>b) return clamp(1-(f-b)/fade,0,1);
+    return 1;
+  }
+  function pathOf(pts){ ctx.beginPath(); pts.forEach((p,i)=> i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); }
+  function fillPoly(pts,style){ if (pts.length<3) return; pathOf(pts); ctx.closePath(); ctx.fillStyle=style; ctx.fill(); }
+  function strokePoly(pts,style,width,alpha){
+    if (pts.length<2) return;
+    ctx.save(); ctx.globalAlpha=alpha; ctx.strokeStyle=style; ctx.lineWidth=width; ctx.lineJoin="round"; ctx.lineCap="round";
+    pathOf(pts); ctx.stroke(); ctx.restore();
+  }
+  function glow(pts,color,width,alpha){
+    if (pts.length<2 || alpha<0.02) return;
+    ctx.save(); ctx.globalAlpha=alpha; ctx.strokeStyle=color; ctx.lineWidth=width+3.5; ctx.lineJoin="round"; ctx.lineCap="round";
+    ctx.shadowColor=color; ctx.shadowBlur=14; pathOf(pts); ctx.stroke();
+    ctx.shadowBlur=0; ctx.strokeStyle="#f7f4ee"; ctx.globalAlpha=alpha*0.9; ctx.lineWidth=Math.max(1,width*0.28); ctx.stroke();
+    ctx.restore();
+  }
+  function arrow(x0,y0,x1,y1,color,width,alpha){
+    const ang = Math.atan2(y1-y0,x1-x0);
+    ctx.save(); ctx.globalAlpha=alpha; ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=width; ctx.lineCap="round";
+    ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+    const s=7; ctx.beginPath(); ctx.moveTo(x1,y1);
+    ctx.lineTo(x1-s*Math.cos(ang-0.45), y1-s*Math.sin(ang-0.45));
+    ctx.lineTo(x1-s*Math.cos(ang+0.45), y1-s*Math.sin(ang+0.45));
+    ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+  function hatch(pts,gap,color,alpha){
+    if (pts.length<3) return;
+    let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+    for (const p of pts){ minX=Math.min(minX,p[0]); maxX=Math.max(maxX,p[0]); minY=Math.min(minY,p[1]); maxY=Math.max(maxY,p[1]); }
+    ctx.save(); pathOf(pts); ctx.closePath(); ctx.clip();
+    ctx.globalAlpha=alpha; ctx.strokeStyle=color; ctx.lineWidth=1; ctx.beginPath();
+    const h = maxY-minY;
+    for (let x=minX-h; x<maxX; x+=gap){ ctx.moveTo(x,minY); ctx.lineTo(x+h,maxY); }
+    ctx.stroke(); ctx.restore();
+  }
+  function panelOpenPoly(poly,up,thick,lift){
+    return offsetPoly(poly, thick+lift, up).concat(offsetPoly(poly, lift, up).slice().reverse());
+  }
+  function drawBackdrop(S){
+    const g = ctx.createLinearGradient(0,0,0,cssH);
+    g.addColorStop(0, S.schlieren>0.2 ? "#121018" : "#0c0e13");
+    g.addColorStop(1, "#05060a");
+    ctx.fillStyle=g; ctx.fillRect(0,0,cssW,cssH);
+  }
+  function drawGrid(cam,S){
+    ctx.save(); ctx.globalAlpha=0.045*(1-S.schlieren*0.7); ctx.strokeStyle="#fff"; ctx.lineWidth=1; ctx.beginPath();
+    for (let x=0;x<=1700;x+=48){ const a=project(cam,[x,80]), b=project(cam,[x,980]); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); }
+    for (let y=80;y<=980;y+=48){ const a=project(cam,[0,y]), b=project(cam,[1700,y]); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); }
+    ctx.stroke(); ctx.restore();
+  }
+  function drawStreaks(cam,S){
+    ctx.save(); ctx.strokeStyle="#c5c6c7"; ctx.lineWidth=1; ctx.globalAlpha=0.16;
+    for (let i=0;i<42;i++){
+      const y=120+hash(i)*820, span=70+hash(i+4)*140, speed=4+hash(i+8)*3;
+      const x=((hash(i+2)*1800+S.f*speed)%2100)-250;
+      const a=project(cam,[x,y]), b=project(cam,[x+span,y]);
+      ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawCompression(cam,S){
+    const lip = COWL_IN[0];
+    const ramp = slicePoly(BELLY, BELLY[0][0], lip[0]);
+    const screen = projectAll(cam, [BELLY[0], lip].concat(ramp.slice().reverse()));
+    const a = project(cam, BELLY[0]), b = project(cam, lip);
+    const g = ctx.createLinearGradient(a[0],a[1],b[0],b[1]);
+    const amp = 0.1+S.schlieren*0.16;
+    g.addColorStop(0, "rgba(255,208,0,0.01)");
+    g.addColorStop(0.55, "rgba(255,208,0,"+amp+")");
+    g.addColorStop(1, "rgba(255,208,0,"+(amp*0.25)+")");
+    fillPoly(screen, g);
+  }
+  function drawExternalShock(cam){ glow(projectAll(cam, [BELLY[0], COWL_IN[0]]), C.violet, 2.2, 0.92); }
+  function band(cam,poly,dist,up){ return projectAll(cam, poly.concat(offsetPoly(poly,dist,up).slice().reverse())); }
+  function drawBody(cam){
+    const screen = projectAll(cam, BODY);
+    const top = project(cam, UPPER[3]), bot = project(cam, BELLY[3]);
+    const g = ctx.createLinearGradient(top[0],top[1],bot[0],bot[1]);
+    g.addColorStop(0,"#242a33"); g.addColorStop(1,"#14181d");
+    fillPoly(screen, g);
+    const skin = band(cam, UPPER, 14, false);
+    fillPoly(skin, C.ti); hatch(skin, 7, "rgba(197,198,199,0.28)", 0.7);
+    const wall = band(cam, BELLY, 15, true);
+    fillPoly(wall, C.ti); hatch(wall, 7, "rgba(197,198,199,0.28)", 0.75);
+    strokePoly(projectAll(cam, UPPER), "rgba(230,226,216,0.45)", 1.25, 1);
+    strokePoly(projectAll(cam, BELLY), "rgba(230,226,216,0.7)", 1.4, 1);
+  }
+  function drawCowl(cam){
+    const screen = projectAll(cam, COWL_SOLID);
+    fillPoly(screen, C.ti); hatch(screen, 7, "rgba(197,198,199,0.3)", 0.8);
+    strokePoly(projectAll(cam, COWL_OUT), "rgba(230,226,216,0.4)", 1.2, 1);
+    strokePoly(projectAll(cam, COWL_IN), "rgba(230,226,216,0.75)", 1.4, 1);
+    const lip = project(cam, COWL_IN[0]);
+    ctx.save(); ctx.strokeStyle=C.plasma; ctx.globalAlpha=0.7; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(lip[0], lip[1], 3.2, 0, Math.PI*2); ctx.stroke(); ctx.restore();
+  }
+  function drawDuct(cam,S){
+    const screen = projectAll(cam, DUCT);
+    fillPoly(screen, "#07080c");
+    if (S.schlieren>0.02){
+      ctx.save(); pathOf(screen); ctx.closePath(); ctx.clip();
+      ctx.globalAlpha=0.95*S.schlieren;
+      let minY=Infinity,maxY=-Infinity,minX=Infinity,maxX=-Infinity;
+      for (const p of screen){ minX=Math.min(minX,p[0]); maxX=Math.max(maxX,p[0]); minY=Math.min(minY,p[1]); maxY=Math.max(maxY,p[1]); }
+      for (let y=minY;y<maxY;y+=5){
+        ctx.fillStyle = ((y/5)|0)%2 ? "rgba(150,100,210,0.42)" : "rgba(255,255,255,0.05)";
+        ctx.fillRect(minX, y, maxX-minX, 2);
+      }
+      ctx.restore();
+    }
+    ctx.save(); pathOf(screen); ctx.closePath(); ctx.clip();
+    drawTrain(cam,S); drawFuel(cam,S); drawPlume(cam,S); drawThrough(cam,S);
+    ctx.restore();
+  }
+  function drawTrain(cam,S){
+    const revealed = smooth(clamp((S.f-80)/50,0,1));
+    const alpha = revealed*(0.7+0.3*S.schlieren);
+    const pts = projectAll(cam, TRAIN);
+    for (let i=0;i<pts.length-1;i++){
+      const fall = 1-i/(pts.length-1);
+      glow([pts[i], pts[i+1]], C.violet, 2, alpha*(0.35+0.65*fall));
+    }
+  }
+  function strutInfo(x){
+    const yb = yOn(BELLY,x), yc = yOn(COWL_IN,x), tip = yb+(yc-yb)*0.64;
+    return { yb:yb, yc:yc, tip:tip, o1:lerp(yb,tip,0.4), o2:lerp(yb,tip,0.74) };
+  }
+  function drawFuel(cam,S){
+    if (S.fuel<0.02) return;
+    STRUTS.forEach((x,pi)=>{
+      const s = strutInfo(x);
+      [s.o1, s.o2].forEach((y0,oi)=>{
+        if (oi===0 && pi===1){
+          for (let side=-1; side<=1; side+=2){
+            const pts=[];
+            for (let k=0;k<=24;k++){
+              const t=k/24, px=x+10+t*150;
+              const yb=yOn(BELLY,px)+8;
+              const yc=(px<=1188?yOn(COWL_IN,px):shearY(px))-8;
+              const wave=Math.sin(t*Math.PI*2+S.f*0.1*side)*(3+t*12)*side;
+              pts.push(project(cam,[px, clamp(y0+Math.sin(t*Math.PI)*10+wave, yb, yc)]));
+            }
+            strokePoly(pts, C.yellow, 1.4, S.fuel*0.85);
+          }
+        }
+        for (let n=0;n<6;n++){
+          const seed=hash(pi*40+oi*17+n), cycle=24+seed*14;
+          const age=((S.f*0.65+n*7+pi*5)%cycle)/cycle;
+          const px=x+age*(70+seed*80), py=y0+Math.sin(age*Math.PI)*(12+oi*14);
+          const p=project(cam,[px,py]);
+          ctx.save(); ctx.globalAlpha=(1-age)*S.fuel*0.85; ctx.fillStyle=C.yellow;
+          ctx.beginPath(); ctx.arc(p[0],p[1],1.2+(1-age)*1.3,0,Math.PI*2); ctx.fill(); ctx.restore();
+        }
+      });
+    });
+  }
+  function drawPlume(cam,S){
+    if (S.flame<0.02) return;
+    const x0=1030, x1=lerp(1120,1560,S.burn), top=[], bot=[];
+    for (let x=x0;x<=x1;x+=18){
+      const yb=yOn(BELLY,x);
+      const yc=x<=COWL_IN[COWL_IN.length-1][0]?yOn(COWL_IN,x):shearY(x);
+      const span=Math.max(12,yc-yb);
+      top.push([x, yb+span*0.1]);
+      bot.push([x, yb+span*lerp(0.34,0.9,S.burn)]);
+    }
+    const poly=projectAll(cam, top.concat(bot.slice().reverse()));
+    const a=project(cam, top[0]), b=project(cam, top[top.length-1]);
+    const g=ctx.createLinearGradient(a[0],a[1],b[0],b[1]);
+    g.addColorStop(0, "rgba(247,37,133,"+(0.2*S.flame)+")");
+    g.addColorStop(0.18, "rgba(247,37,133,"+(0.72*S.flame)+")");
+    g.addColorStop(1, "rgba(247,37,133,"+(0.12*S.flame)+")");
+    fillPoly(poly, g);
+    glow(projectAll(cam, top.map((p,i)=>[(p[0]+bot[i][0])/2,(p[1]+bot[i][1])/2])), C.plasma, 2.4, 0.55*S.flame);
+    for (let n=0;n<70;n++){
+      const x=x0+hash(200+n)*(x1-x0);
+      const yb=yOn(BELLY,x), yc=x<=1188?yOn(COWL_IN,x):shearY(x);
+      const p=project(cam,[x, lerp(yb+10,yc-8,hash(300+n))+Math.sin(S.f*0.08+n)*2]);
+      ctx.save(); ctx.globalAlpha=S.flame*(0.15+hash(400+n)*0.45);
+      ctx.fillStyle=hash(500+n)>0.75?"#fff4f8":C.plasma;
+      ctx.beginPath(); ctx.arc(p[0],p[1],1.1+hash(600+n)*1.6,0,Math.PI*2); ctx.fill(); ctx.restore();
+    }
+  }
+  function screenArrow(cam,x,y,dir,lenWorld,color,alpha){
+    if (alpha<0.03) return;
+    const a=project(cam,[x,y]), b=project(cam,[x+dir[0]*lenWorld, y+dir[1]*lenWorld]);
+    arrow(a[0],a[1],b[0],b[1],color,1.15,alpha);
+  }
+  function drawThrough(cam,S){
+    const alpha=Math.max(S.fuel*0.35, S.flame*0.7)*(1-S.field);
+    if (alpha<0.04) return;
+    for (let i=0;i<8;i++){
+      const x=720+i*95, yb=yOn(BELLY,x), yc=x<1188?yOn(COWL_IN,x):shearY(x);
+      const hot=x>1040 && S.flame>0.2;
+      screenArrow(cam, x, lerp(yb,yc,0.5), tangentAt(BELLY,x), 34, hot?C.plasma:C.yellow, alpha);
+    }
+  }
+  function drawStruts(cam,S){
+    const show=smooth(clamp((S.f-100)/40,0,1));
+    if (show<0.02) return;
+    ctx.save(); ctx.globalAlpha=show;
+    STRUTS.forEach((x)=>{
+      const s=strutInfo(x);
+      const poly=[[x,s.yb+1],[x+8,s.yb+18],[x+5.5,s.tip-10],[x,s.tip],[x-5.5,s.tip-10],[x-8,s.yb+18]];
+      const screen=projectAll(cam,poly);
+      fillPoly(screen,"#3a4150"); strokePoly(screen,"rgba(230,226,216,0.8)",1.15,1);
+      [s.o1,s.o2].forEach((y)=>{
+        const p=project(cam,[x+6,y]);
+        ctx.fillStyle=C.yellow; ctx.globalAlpha=show*Math.max(0.35,S.fuel);
+        ctx.beginPath(); ctx.arc(p[0],p[1],2.1,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=show;
+      });
+    });
+    ctx.restore();
+  }
+  function drawManifold(cam,S){
+    if (S.fuel<0.05) return;
+    const pts=STRUTS.map((x)=>[x, yOn(BELLY,x)-24]);
+    pts.unshift([980, yOn(BELLY,980)-24]);
+    glow(projectAll(cam,pts), C.yellow, 1.6, 0.55*S.fuel);
+    STRUTS.forEach((x)=>{
+      strokePoly([project(cam,[x,yOn(BELLY,x)-24]), project(cam,[x,yOn(BELLY,x)+2])], C.yellow, 1.2, 0.7*S.fuel);
+    });
+  }
+  function closeoutWorld(open){
+    const top=slicePoly(BELLY,545,1500).map((p)=>[p[0],p[1]-2]);
+    const teX=COWL_IN[COWL_IN.length-1][0];
+    const low=slicePoly(COWL_IN,545,teX).map((p)=>[p[0],p[1]+4]);
+    return top.concat([[1500, shearY(1500)]], low.slice().reverse()).map((p)=>[p[0]+open*20, p[1]+open*158]);
+  }
+  function drawPlate(cam,world,strokeAlpha){
+    const screen=projectAll(cam,world);
+    ctx.save(); ctx.translate(5,7); fillPoly(screen,"rgba(0,0,0,0.55)"); ctx.restore();
+    let minY=Infinity,maxY=-Infinity;
+    for (const p of screen){ minY=Math.min(minY,p[1]); maxY=Math.max(maxY,p[1]); }
+    const g=ctx.createLinearGradient(0,minY,0,maxY);
+    g.addColorStop(0,"#242a34"); g.addColorStop(0.42,"#121316"); g.addColorStop(1,"#0b0c0f");
+    fillPoly(screen,g); strokePoly(screen,"rgba(230,226,216,"+strokeAlpha+")",1.25,1);
+  }
+  function drawSeams(cam,poly,up,inner,outer){
+    ctx.save(); ctx.strokeStyle="rgba(230,226,216,0.32)"; ctx.lineWidth=1;
+    let acc=0; const gap=34;
+    for (let i=0;i<poly.length-1;i++){
+      const a=poly[i], b=poly[i+1], L=Math.hypot(b[0]-a[0],b[1]-a[1])||1;
+      let d=(gap-(acc%gap))%gap;
+      const n=normalFrom(b[0]-a[0], b[1]-a[1], up);
+      while (d<L){
+        const t=d/L, x=a[0]+(b[0]-a[0])*t, y=a[1]+(b[1]-a[1])*t;
+        const p0=project(cam,[x+n[0]*inner,y+n[1]*inner]), p1=project(cam,[x+n[0]*outer,y+n[1]*outer]);
+        ctx.beginPath(); ctx.moveTo(p0[0],p0[1]); ctx.lineTo(p1[0],p1[1]); ctx.stroke();
+        d+=gap;
+      }
+      acc+=L;
+    }
+    ctx.restore();
+  }
+  function drawTiles(cam,S){
+    const specs=[
+      {poly:slicePoly(UPPER,150,470),up:true,i:0},{poly:slicePoly(UPPER,470,860),up:true,i:1},
+      {poly:slicePoly(UPPER,860,1200),up:true,i:2},{poly:slicePoly(UPPER,1200,1560),up:true,i:3},
+      {poly:slicePoly(BELLY,160,330),up:false,i:4},{poly:slicePoly(BELLY,330,490),up:false,i:5},
+      {poly:slicePoly(COWL_OUT,508,800),up:false,i:6},{poly:slicePoly(COWL_OUT,800,1210),up:false,i:7}
+    ];
+    specs.forEach((spec)=>{
+      const open=S.open(spec.i), lift=open*(spec.up?62:40);
+      if (open>0.08) strokePoly(projectAll(cam, panelOpenPoly(spec.poly,spec.up,16,0)), "rgba(230,226,216,0.22)", 1, open);
+      drawPlate(cam, panelOpenPoly(spec.poly,spec.up,16,lift), 0.72);
+      drawSeams(cam, spec.poly, spec.up, lift, lift+16);
+    });
+    if (S.open(1)>0.15){
+      const poly=slicePoly(UPPER,470,860), mid=poly[Math.floor(poly.length/2)], n=normalFrom(1,-0.15,true);
+      const lift=S.open(1)*62+16;
+      const a=project(cam,[mid[0]+n[0]*lift, mid[1]+n[1]*lift]);
+      const b=project(cam,[mid[0]+n[0]*(lift+34), mid[1]+n[1]*(lift+34)]);
+      arrow(a[0],a[1],b[0],b[1], C.bone, 1.2, phaseAlpha(S.f,0));
+    }
+  }
+  function drawCloseout(cam,S){
+    const open=S.open(8);
+    if (open>0.08) strokePoly(projectAll(cam, closeoutWorld(0)), "rgba(230,226,216,0.2)", 1, open);
+    const screen=projectAll(cam, closeoutWorld(open));
+    ctx.save(); ctx.translate(5,8); fillPoly(screen,"rgba(0,0,0,0.5)"); ctx.restore();
+    fillPoly(screen,"#121316");
+    strokePoly(screen,"rgba(230,226,216,0.7)",1.25,1);
+    hatch(screen,10,"rgba(230,226,216,0.16)",0.9);
+  }
+  function drawField(cam,S){
+    if (S.field<0.04) return;
+    const plate=closeoutWorld(S.open(8));
+    for (let x=80;x<=1620;x+=150){
+      for (let y=150;y<=900;y+=92){
+        if (inside(BODY,x,y) || inside(COWL_SOLID,x,y) || inside(plate,x,y)) continue;
+        let dir=[1,0], color="#9aa6b4", len=34;
+        const lip=COWL_IN[0];
+        const shockY=lerp(BELLY[0][1], lip[1], clamp((x-BELLY[0][0])/(lip[0]-BELLY[0][0]),0,1));
+        if (inside(DUCT,x,y)){
+          dir=tangentAt(BELLY,x);
+          color=(x>1040 && S.flame>0.2)?C.plasma:C.yellow;
+          len=x>1240?40:30;
+        } else if (x<lip[0] && y>yOn(BELLY,x) && y<shockY){
+          dir=tangentAt(BELLY,x); color=C.yellow; len=24;
+        }
+        screenArrow(cam,x,y,dir,len,color,S.field*0.92);
+      }
+    }
+  }
+  function drawTaps(cam,S){
+    if (S.field<0.15) return;
+    ctx.save(); ctx.strokeStyle=C.bone; ctx.fillStyle=C.bone; ctx.globalAlpha=S.field; ctx.lineWidth=1;
+    for (let i=0;i<8;i++){
+      const base=atX(BELLY,760+i*95), p=project(cam,base), q=project(cam,[base[0], base[1]-16]);
+      ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke();
+      ctx.beginPath(); ctx.arc(p[0],p[1],2.6,0,Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+    if (S.field>0.55 && cam.z<cssW/1860*1.35) drawPlot(S);
+  }
+  function drawPlot(S){
+    const vals=[0.32,0.46,0.6,0.78,0.95,0.74,0.48,0.3];
+    const x0=18, y0=cssH-78, w=168, h=52;
+    ctx.save(); ctx.globalAlpha=S.field; ctx.fillStyle="rgba(8,9,12,0.72)";
+    ctx.fillRect(x0-8,y0-28,w+16,h+40);
+    ctx.strokeStyle="rgba(230,226,216,0.4)"; ctx.strokeRect(x0,y0,w,h);
+    ctx.beginPath();
+    vals.forEach((v,i)=>{ const x=x0+(i/(vals.length-1))*w, y=y0+h-v*(h-8)-4; i?ctx.lineTo(x,y):ctx.moveTo(x,y); });
+    ctx.strokeStyle=C.yellow; ctx.lineWidth=1.4; ctx.stroke();
+    ctx.fillStyle=C.mute; ctx.font="10px 'JetBrains Mono', monospace";
+    ctx.fillText("wall pressure, schematic shape", x0, y0-10);
+    ctx.fillText("inlet", x0, y0+h+12);
+    ctx.fillText("ramp", x0+w-28, y0+h+12);
+    ctx.restore();
+  }
+  function drawForces(cam,S){
+    if (S.field<0.08) return;
+    for (let i=0;i<5;i++){
+      const x=1240+i*60, p=atX(BELLY,x), t=tangentAt(BELLY,x);
+      const n=[-t[1], -t[0]];
+      const a=project(cam,p), b=project(cam,[p[0]+n[0]*46, p[1]+n[1]*46]);
+      arrow(a[0],a[1],b[0],b[1], C.bone, 1.35, S.field);
+    }
+    const nose=project(cam,[250, yOn(UPPER,250)-28]);
+    arrow(nose[0]+70, nose[1], nose[0]-36, nose[1], C.bone, 1.6, S.field);
+  }
+  function callout(cam,world,dx,dy,title,body,alpha){
+    if (alpha<0.04) return;
+    const s=project(cam,world);
+    ctx.save(); ctx.globalAlpha=alpha;
+    ctx.font="500 12.5px 'Space Grotesk', sans-serif";
+    const titleW=ctx.measureText(title).width;
+    ctx.font="11px 'JetBrains Mono', monospace";
+    const textW=Math.max(titleW, ctx.measureText(body).width);
+    let left=dx<0, tx=s[0]+dx, ty=clamp(s[1]+dy,20,cssH-18);
+    if (!left && tx+10+textW>cssW-6) left=true;
+    if (left && tx-10-textW<6) left=false;
+    tx=left?Math.max(tx, textW+10):Math.min(tx, cssW-textW-10);
+    tx=clamp(tx,8,cssW-8);
+    ctx.strokeStyle="rgba(230,226,216,0.55)"; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(s[0],s[1]); ctx.lineTo(s[0]+(tx-s[0])*0.45, s[1]+(ty-s[1])*0.2); ctx.lineTo(tx,ty); ctx.stroke();
+    ctx.fillStyle=C.yellow; ctx.beginPath(); ctx.arc(s[0],s[1],2.3,0,Math.PI*2); ctx.fill();
+    ctx.textAlign=left?"right":"left"; ctx.textBaseline="middle";
+    const lx=tx+(left?-8:8);
+    ctx.font="500 12.5px 'Space Grotesk', sans-serif"; ctx.fillStyle=C.bone; ctx.fillText(title,lx,ty-8);
+    ctx.font="11px 'JetBrains Mono', monospace"; ctx.fillStyle=C.mute; ctx.fillText(body,lx,ty+8);
+    ctx.restore();
+  }
+  function drawCallouts(cam,S){
+    const f=S.f, lip=COWL_IN[0];
+    callout(cam,[900,yOn(UPPER,900)-74],18,-22,"Ceramic shell","lifts on the surface normal",phaseAlpha(f,0));
+    callout(cam,[470,yOn(BELLY,470)],-24,58,"Isolator entrance","flow turns into the duct",phaseAlpha(f,0));
+    callout(cam,lip,-8,70,"Shock-on-lip","schematic design point",phaseAlpha(f,1));
+    if (TRAIN.length>2) callout(cam,TRAIN[2],18,-40,"Reflection","downstream of the lip",phaseAlpha(f,1));
+    callout(cam,[STRUTS[0]-8,strutInfo(STRUTS[0]).tip],-86,6,"Injection pylon","transverse jet",phaseAlpha(f,2));
+    callout(cam,[STRUTS[1]+78,strutInfo(STRUTS[1]).o1+16],22,28,"Vortex pair","counter-rotating",phaseAlpha(f,2));
+    callout(cam,[1120,yOn(BELLY,1120)-8],8,-46,"Autoignition","anchored in the strut wake",phaseAlpha(f,3));
+    callout(cam,[1470,shearY(1470)],14,30,"Supersonic core","no flashback",phaseAlpha(f,3));
+    callout(cam,[1488,yOn(BELLY,1488)],10,-42,"SERN ramp","single expansion wall",phaseAlpha(f,4));
+    callout(cam,[1188,yOn(COWL_IN,1188)],-78,42,"Cowl edge","shear layer starts here",phaseAlpha(f,4));
+    callout(cam,[340,yOn(UPPER,340)-46],12,-26,"Net axial force","forward, on the vehicle",phaseAlpha(f,4));
+    ctx.save(); ctx.globalAlpha=0.7; ctx.fillStyle=C.mute; ctx.font="11px 'JetBrains Mono', monospace"; ctx.textAlign="left";
+    ctx.fillText(cssW<560?"M∞ = 6":"M∞ = 6  SCENARIO",12,18);
+    ctx.textAlign="right";
+    if (cssW<560) ctx.fillText("NOT TO SCALE", cssW-10, 18);
+    else {
+      ctx.fillText("SIDE ELEVATION  ·  NOT TO SCALE", cssW-16, cssH-14);
+      if (S.field>0.6 && cssW>680) ctx.fillText("color arrows: velocity     bone arrows: force", cssW-16, cssH-30);
+    }
+    ctx.restore();
+  }
+  function vignette(){
+    const g=ctx.createRadialGradient(cssW/2,cssH/2,cssH*0.35,cssW/2,cssH/2,cssH*0.72);
+    g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(1,"rgba(0,0,0,0.38)");
+    ctx.fillStyle=g; ctx.fillRect(0,0,cssW,cssH);
+  }
+  function render(f){
+    if (cssW<2 || cssH<2) return;
+    const S=scene(f), cam=camera(f,cssW,cssH);
+    ctx.clearRect(0,0,cssW,cssH);
+    drawBackdrop(S); drawGrid(cam,S); drawStreaks(cam,S); drawCompression(cam,S); drawExternalShock(cam);
+    drawBody(cam); drawCowl(cam); drawDuct(cam,S); drawStruts(cam,S); drawManifold(cam,S);
+    drawCloseout(cam,S); drawTiles(cam,S); drawField(cam,S); drawTaps(cam,S); drawForces(cam,S);
+    drawCallouts(cam,S); vignette();
+  }
+  function timecode(f){
+    const m=Math.floor(f/FPS/60), s=Math.floor(f/FPS)%60, fr=f%FPS;
+    return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0")+":"+String(fr).padStart(2,"0");
+  }
+  function updateHud(){
+    const p=phaseOf(frame);
+    el.tc.textContent=timecode(frame);
+    el.meta.textContent="F "+String(frame).padStart(4,"0")+" / 1019 · "+(frame/FPS).toFixed(1)+" s";
+    el.title.textContent=CHAPTERS[p].h;
+    el.body.textContent=CHAPTERS[p].d;
+    el.scrub.value=String(frame);
+    el.scrub.setAttribute("aria-valuenow", String(frame));
+    el.scrub.setAttribute("aria-valuetext", timecode(frame));
+    el.play.textContent=playing?"Pause":"Play";
+    [...el.chips.children].forEach((btn,i)=>btn.setAttribute("aria-current", i===p?"true":"false"));
+  }
+  function resize(){
+    const rect=canvas.getBoundingClientRect();
+    const dpr=Math.min(1.6, window.devicePixelRatio||1);
+    cssW=Math.max(2, rect.width); cssH=Math.max(2, rect.height);
+    canvas.width=Math.round(cssW*dpr); canvas.height=Math.round(cssH*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0); dirty=true;
+  }
+  function seek(f, keepPlaying){ frame=clamp(f|0,0,LAST); if (!keepPlaying) playing=false; dirty=true; updateHud(); }
+  function step(){
+    frame+=1;
+    if (frame>LAST){ if (loopOn) frame=0; else { frame=LAST; playing=false; } }
+    dirty=true;
+  }
+  function loop(now){
+    if (!lastT) lastT=now;
+    const dt=Math.min(80, now-lastT); lastT=now;
+    if (playing){ acc+=dt; const stepMs=1000/FPS; while (acc>=stepMs){ acc-=stepMs; step(); } }
+    if (dirty){ render(frame); updateHud(); dirty=false; }
+    requestAnimationFrame(loop);
+  }
+  CHAPTERS.forEach((ch)=>{
+    const b=document.createElement("button");
+    b.type="button"; b.textContent=ch.t; b.setAttribute("role","tab");
+    b.addEventListener("click", ()=>seek(ch.f, playing));
+    el.chips.appendChild(b);
+    const tick=document.createElement("i");
+    tick.style.left=(ch.f/LAST*100)+"%";
+    el.ticks.appendChild(tick);
+  });
+  el.play.addEventListener("click", ()=>{ playing=!playing; if (playing && frame>=LAST) frame=0; dirty=true; updateHud(); });
+  document.getElementById("restart").addEventListener("click", ()=>{ frame=0; playing=true; acc=0; dirty=true; });
+  el.loop.addEventListener("click", ()=>{
+    loopOn=!loopOn; el.loop.textContent=loopOn?"Loop on":"Loop off"; el.loop.setAttribute("aria-pressed", loopOn?"true":"false");
+  });
+  el.scrub.addEventListener("input", ()=>seek(parseInt(el.scrub.value,10)||0, false));
+  addEventListener("keydown", (e)=>{
+    if (e.target===el.scrub) return;
+    if (e.code==="Space"){ e.preventDefault(); el.play.click(); }
+    else if (e.code==="ArrowRight"){ e.preventDefault(); seek(frame+(e.shiftKey?FPS:1), false); }
+    else if (e.code==="ArrowLeft"){ e.preventDefault(); seek(frame-(e.shiftKey?FPS:1), false); }
+    else if (e.code==="Home"){ e.preventDefault(); seek(0, false); }
+    else if (e.code==="End"){ e.preventDefault(); seek(LAST, false); }
+  });
+  new ResizeObserver(()=>{ resize(); }).observe(canvas);
+  resize(); updateHud(); requestAnimationFrame(loop);
+  window.__seek=(f)=>seek(f,false);
+  window.__frame=()=>frame;
+})();
+</script>
+</body>
+</html>
